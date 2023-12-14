@@ -83,7 +83,7 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' && steps.release.outputs.version }}
           tags: |
             ghcr.io/${{ github.repository }}/dummy-service.gateway:latest
-            ${{ github.ref == 'refs/heads/main' && ghcr.io/${{ github.repository }}/dummy-service.gateway:${{ steps.release.outputs.version }} }}
+            ${{ github.ref == 'refs/heads/main' && 'ghcr.io/${{ github.repository }}/dummy-service.gateway:${{ steps.release.outputs.version }}' }}
 
       - name: Build and Push Workers Docker Image
         uses: docker/build-push-action@v2
@@ -93,4 +93,4 @@ jobs:
           push: ${{ github.ref == 'refs/heads/main' && steps.release.outputs.version }}
           tags: |
             ghcr.io/${{ github.repository }}/dummy-service.workers:latest
-            ${{ github.ref == 'refs/heads/main' && ghcr.io/${{ github.repository }}/dummy-service.workers:${{ steps.release.outputs.version }} }}
+            ${{ github.ref == 'refs/heads/main' && 'ghcr.io/${{ github.repository }}/dummy-service.workers:${{ steps.release.outputs.version }}' }}
