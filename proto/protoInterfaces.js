@@ -1,4 +1,4 @@
-// TODO: move the proto util out of dummy-service
+// TODO: move the proto util out of dummy-service1
 const fs = require('fs');
 const path = require('path');
 
