@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message DummyJobPayload {
+  string id = 1;
+}
+
+message PublishJobInput {
+  DummyJobPayload dummyJobPayload = 10;
+}

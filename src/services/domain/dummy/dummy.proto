@@ -1,0 +1,62 @@
+syntax = "proto3";
+import "google/protobuf/empty.proto";
+
+package main;
+
+message Dummy {
+  string id = 1;
+  uint64 createdAt = 2;
+  uint64 updatedAt = 3;
+  string text = 4;
+  bool isPublic = 5;
+}
+
+message DummyCreateOneInput {
+  string text = 2;
+  bool isPublic = 5;
+}
+
+message DummyUpdateOneInput {
+  string id = 1;
+  string text = 2;
+}
+
+message DummyFindOneInput {
+  string id = 1;
+}
+
+message DummyRemoveOneInput {
+  string id = 1;
+}
+
+message DummySearchFilter {
+  string text = 1;
+}
+
+message DummySearchOpts {
+  uint64 limit = 1;
+  uint64 offset = 2;
+  bool waitForSync = 3;
+}
+
+message DummySearchInput {
+  DummySearchFilter filter = 1;
+  DummySearchOpts opts = 2;
+}
+
+message DummySearchResultMeta {
+  uint64 offset = 1;
+}
+
+message DummySearchResult {
+  DummySearchResultMeta meta = 1;
+  repeated Dummy results = 2;
+}
+
+service DummyService {
+  rpc CreateOne (DummyCreateOneInput) returns (Dummy) {}
+  rpc UpdateOne (DummyUpdateOneInput) returns (Dummy) {}
+  rpc FindOne (DummyFindOneInput) returns (Dummy) {}
+  rpc RemoveOne (DummyRemoveOneInput) returns (google.protobuf.Empty) {}
+  rpc Search (DummySearchInput) returns (DummySearchResult) {}
+}

@@ -1,0 +1,96 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Semver Check
+        uses: cocogitto/cocogitto-action@v3
+        with:
+          check-latest-tag-only: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.17'
+
+      - name: Configure NPM
+        run: echo "APPSTACKIO_GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Setup Script
+        run: npm run setup:ts
+
+      - name: Run Tests
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_SECRET: ${{ secrets.GOOGLE_SECRET }}
+          ASIO_SESSION_SECRET: ${{ secrets.SESSION_SECRET }}
+        run: npm run build && npm test
+
+      - name: Semver release
+        if: github.ref == 'refs/heads/main'
+        uses: cocogitto/cocogitto-action@v3
+        id: release
+        with:
+          check-latest-tag-only: true
+          release: true
+          git-user: 'Cog Bot'
+          git-user-email: 'cogbot@adventure.org'
+
+      - name: Update package.json version
+        if: github.ref == 'refs/heads/main' && steps.release.outputs.version
+        run: node update-version.js
+
+      - name: Commit and push updated package.json
+        if: github.ref == 'refs/heads/main' && steps.release.outputs.version
+        run: |
+          git config --local user.email "action@appstack-io"
+          git config --local user.name "GitHub Action"
+          git commit -am "chore: bump version to $(cat package.json | jq -r .version)"
+          git push
+
+      - name: Login to GitHub Container Registry
+        if: github.ref == 'refs/heads/main' && steps.release.outputs.version
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Gateway Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: gateway.Dockerfile
+          push: ${{ github.ref == 'refs/heads/main' && steps.release.outputs.version }}
+          tags: |
+            ghcr.io/${{ github.repository }}/dummy-service.gateway:latest
+            ${{ github.ref == 'refs/heads/main' && ghcr.io/${{ github.repository }}/dummy-service.gateway:${{ steps.release.outputs.version }} }}
+
+      - name: Build and Push Workers Docker Image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: workers.Dockerfile
+          push: ${{ github.ref == 'refs/heads/main' && steps.release.outputs.version }}
+          tags: |
+            ghcr.io/${{ github.repository }}/dummy-service.workers:latest
+            ${{ github.ref == 'refs/heads/main' && ghcr.io/${{ github.repository }}/dummy-service.workers:${{ steps.release.outputs.version }} }}
