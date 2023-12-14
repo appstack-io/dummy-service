@@ -25,7 +25,6 @@
     "@appstack-io/client": "^0.1.4",
     "@appstack-io/config": "^0.1.3",
     "@appstack-io/exceptions": "^0.1.2",
-    "@appstack-io/gateway": "^0.1.1",
     "@appstack-io/health": "^0.0.3",
     "@appstack-io/identity": "^0.0.3",
     "@appstack-io/integrity": "^0.0.2",
