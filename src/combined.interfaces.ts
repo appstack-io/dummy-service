@@ -649,18 +649,10 @@ export interface PermissionService {
   FindWhere(request: PermissionFindWhereInput): Promise<Permission>;
   FindWhereMany(request: PermissionFindWhereManyInput): Promise<Permissions>;
   FindWhereOrStar(request: PermissionFindWhereOrStarInput): Promise<Permission>;
-  FindByPermitted(
-    request: PermissionFindByPermittedInput,
-  ): Promise<PermissionFindByPermittedResult>;
-  FindByEntity(
-    request: PermissionFindByEntityInput,
-  ): Promise<PermissionFindByEntityResult>;
-  FindAllActions(
-    request: PermissionFindAllActionsInput,
-  ): Promise<PermissionFindAllActionsResult>;
-  ValidateOne(
-    request: PermissionValidateOneInput,
-  ): Promise<PermissionValidateOneResult>;
+  FindByPermitted(request: PermissionFindByPermittedInput): Promise<PermissionFindByPermittedResult>;
+  FindByEntity(request: PermissionFindByEntityInput): Promise<PermissionFindByEntityResult>;
+  FindAllActions(request: PermissionFindAllActionsInput): Promise<PermissionFindAllActionsResult>;
+  ValidateOne(request: PermissionValidateOneInput): Promise<PermissionValidateOneResult>;
   RemoveOne(request: PermissionRemoveOneInput): Promise<Empty>;
   RemoveWhere(request: PermissionRemoveWhereInput): Promise<Empty>;
   RemoveWhereMany(request: PermissionRemoveWhereManyInput): Promise<Empty>;
@@ -670,12 +662,8 @@ export interface PermissionService {
 export interface UserFollowService {
   CreateOne(request: UserFollowCreateOneInput): Promise<Follower>;
   RemoveOne(request: UserFollowRemoveOneInput): Promise<Follower>;
-  FindFollowers(
-    request: UserFindFollowersInput,
-  ): Promise<UserFindFollowersResult>;
-  FindFollowees(
-    request: UserFindFolloweesInput,
-  ): Promise<UserFindFolloweesResult>;
+  FindFollowers(request: UserFindFollowersInput): Promise<UserFindFollowersResult>;
+  FindFollowees(request: UserFindFolloweesInput): Promise<UserFindFolloweesResult>;
 }
 
 export interface ConversationService {
@@ -683,21 +671,13 @@ export interface ConversationService {
   UpdateOne(request: ConversationUpdateOneInput): Promise<Conversation>;
   FindOne(request: ConversationFindOneInput): Promise<Conversation>;
   RemoveOne(request: ConversationRemoveOneInput): Promise<Conversation>;
-  FindByParticipant(
-    request: ConversationFindByParticipantInput,
-  ): Promise<ConversationFindByParticipantResult>;
+  FindByParticipant(request: ConversationFindByParticipantInput): Promise<ConversationFindByParticipantResult>;
 }
 
 export interface ConversationParticipantService {
-  CreateOne(
-    request: ConversationParticipantCreateOneInput,
-  ): Promise<ConversationParticipant>;
-  FindOne(
-    request: ConversationParticipantFindOneInput,
-  ): Promise<ConversationParticipant>;
-  RemoveOne(
-    request: ConversationParticipantRemoveOneInput,
-  ): Promise<ConversationParticipant>;
+  CreateOne(request: ConversationParticipantCreateOneInput): Promise<ConversationParticipant>;
+  FindOne(request: ConversationParticipantFindOneInput): Promise<ConversationParticipant>;
+  RemoveOne(request: ConversationParticipantRemoveOneInput): Promise<ConversationParticipant>;
   FindByConversation(
     request: ConversationParticipantFindByConversationInput,
   ): Promise<ConversationParticipantFindByConversationResult>;
@@ -709,9 +689,7 @@ export interface MessageService {
   FindOne(request: MessageFindOneInput): Promise<Message>;
   FindUnique(request: MessageFindUniqueInput): Promise<Message>;
   RemoveOne(request: MessageRemoveOneInput): Promise<Message>;
-  FindByConversation(
-    request: MessageFindByConversationInput,
-  ): Promise<MessageFindByConversationResult>;
+  FindByConversation(request: MessageFindByConversationInput): Promise<MessageFindByConversationResult>;
 }
 
 export interface WorkersService {
