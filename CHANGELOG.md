@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.0.7 - 2023-12-18
+#### Bug Fixes
+- removed proto - (05aa42b) - orgal
+- removed proto - (8dc46cf) - orgal
+#### Miscellaneous Chores
+- bump version to 0.0.6 - (8d8cf4b) - GitHub Action
+- - -
+
 ## 0.0.6 - 2023-12-14
 #### Bug Fixes
 - removed gateway - (6759cba) - orgal
