@@ -2,6 +2,17 @@ import { Empty } from './google/protobuf/empty';
 
 import { Observable } from 'rxjs';
 
+import type { CallContext, CallOptions } from "nice-grpc-common";
+
+type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
+
+type DeepPartial<T> = T extends Builtin ? T
+      : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+      : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+      : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
+      : Partial<T>;
+    
+
 export interface Dummy {
   id: string;
   createdAt: number;
@@ -616,83 +627,295 @@ export interface WorkersHealthCheckResult {
   ok: boolean;
 }
 
-export interface DummyService {
-  CreateOne(request: DummyCreateOneInput): Promise<Dummy>;
-  UpdateOne(request: DummyUpdateOneInput): Promise<Dummy>;
-  FindOne(request: DummyFindOneInput): Promise<Dummy>;
-  RemoveOne(request: DummyRemoveOneInput): Promise<Empty>;
-  Search(request: DummySearchInput): Promise<DummySearchResult>;
+export interface DummyServiceImplementation<CallContextExt = {}> {
+  createOne(request: DummyCreateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Dummy>>;
+  updateOne(request: DummyUpdateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Dummy>>;
+  findOne(request: DummyFindOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Dummy>>;
+  removeOne(request: DummyRemoveOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Empty>>;
+  search(request: DummySearchInput, context: CallContext & CallContextExt): Promise<DeepPartial<DummySearchResult>>;
 }
 
-export interface LoginService {
-  CreateOne(request: LoginCreateOneInput): Promise<Login>;
-  FindOne(request: LoginFindOneInput): Promise<Login>;
-  FindWhere(request: LoginFindWhereInput): Promise<Login>;
-  FindByPlatformId(request: LoginFindByPlatformIdInput): Promise<Login>;
-  UpdateOne(request: LoginUpdateOneInput): Promise<Login>;
-  RemoveOne(request: LoginRemoveOneInput): Promise<Empty>;
+export interface DummyServiceClient<CallOptionsExt = {}> {
+  createOne(request: DeepPartial<DummyCreateOneInput>, options?: CallOptions & CallOptionsExt): Promise<Dummy>;
+  updateOne(request: DeepPartial<DummyUpdateOneInput>, options?: CallOptions & CallOptionsExt): Promise<Dummy>;
+  findOne(request: DeepPartial<DummyFindOneInput>, options?: CallOptions & CallOptionsExt): Promise<Dummy>;
+  removeOne(request: DeepPartial<DummyRemoveOneInput>, options?: CallOptions & CallOptionsExt): Promise<Empty>;
+  search(request: DeepPartial<DummySearchInput>, options?: CallOptions & CallOptionsExt): Promise<DummySearchResult>;
 }
 
-export interface UserService {
-  CreateOne(request: UserCreateOneInput): Promise<User>;
-  UpdateOne(request: UserUpdateOneInput): Promise<User>;
-  FindOne(request: UserFindOneInput): Promise<User>;
-  FindMe(request: Empty): Promise<User>;
-  RemoveOne(request: UserRemoveOneInput): Promise<Empty>;
-  Search(request: UserSearchInput): Promise<UserSearchResult>;
+export interface LoginServiceImplementation<CallContextExt = {}> {
+  createOne(request: LoginCreateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Login>>;
+  findOne(request: LoginFindOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Login>>;
+  findWhere(request: LoginFindWhereInput, context: CallContext & CallContextExt): Promise<DeepPartial<Login>>;
+  findByPlatformId(
+    request: LoginFindByPlatformIdInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<Login>>;
+  updateOne(request: LoginUpdateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Login>>;
+  removeOne(request: LoginRemoveOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Empty>>;
 }
 
-export interface PermissionService {
-  CreateOne(request: PermissionCreateOneInput): Promise<Permission>;
-  CreateMany(request: PermissionCreateManyInput): Promise<Permissions>;
-  FindOne(request: PermissionFindOneInput): Promise<Permission>;
-  FindWhere(request: PermissionFindWhereInput): Promise<Permission>;
-  FindWhereMany(request: PermissionFindWhereManyInput): Promise<Permissions>;
-  FindWhereOrStar(request: PermissionFindWhereOrStarInput): Promise<Permission>;
-  FindByPermitted(request: PermissionFindByPermittedInput): Promise<PermissionFindByPermittedResult>;
-  FindByEntity(request: PermissionFindByEntityInput): Promise<PermissionFindByEntityResult>;
-  FindAllActions(request: PermissionFindAllActionsInput): Promise<PermissionFindAllActionsResult>;
-  ValidateOne(request: PermissionValidateOneInput): Promise<PermissionValidateOneResult>;
-  RemoveOne(request: PermissionRemoveOneInput): Promise<Empty>;
-  RemoveWhere(request: PermissionRemoveWhereInput): Promise<Empty>;
-  RemoveWhereMany(request: PermissionRemoveWhereManyInput): Promise<Empty>;
-  RemoveAllActions(request: PermissionRemoveAllActionsInput): Promise<Empty>;
+export interface LoginServiceClient<CallOptionsExt = {}> {
+  createOne(request: DeepPartial<LoginCreateOneInput>, options?: CallOptions & CallOptionsExt): Promise<Login>;
+  findOne(request: DeepPartial<LoginFindOneInput>, options?: CallOptions & CallOptionsExt): Promise<Login>;
+  findWhere(request: DeepPartial<LoginFindWhereInput>, options?: CallOptions & CallOptionsExt): Promise<Login>;
+  findByPlatformId(
+    request: DeepPartial<LoginFindByPlatformIdInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Login>;
+  updateOne(request: DeepPartial<LoginUpdateOneInput>, options?: CallOptions & CallOptionsExt): Promise<Login>;
+  removeOne(request: DeepPartial<LoginRemoveOneInput>, options?: CallOptions & CallOptionsExt): Promise<Empty>;
 }
 
-export interface UserFollowService {
-  CreateOne(request: UserFollowCreateOneInput): Promise<Follower>;
-  RemoveOne(request: UserFollowRemoveOneInput): Promise<Follower>;
-  FindFollowers(request: UserFindFollowersInput): Promise<UserFindFollowersResult>;
-  FindFollowees(request: UserFindFolloweesInput): Promise<UserFindFolloweesResult>;
+export interface UserServiceImplementation<CallContextExt = {}> {
+  createOne(request: UserCreateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<User>>;
+  updateOne(request: UserUpdateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<User>>;
+  findOne(request: UserFindOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<User>>;
+  findMe(request: Empty, context: CallContext & CallContextExt): Promise<DeepPartial<User>>;
+  removeOne(request: UserRemoveOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Empty>>;
+  search(request: UserSearchInput, context: CallContext & CallContextExt): Promise<DeepPartial<UserSearchResult>>;
 }
 
-export interface ConversationService {
-  CreateOne(request: ConversationCreateOneInput): Promise<Conversation>;
-  UpdateOne(request: ConversationUpdateOneInput): Promise<Conversation>;
-  FindOne(request: ConversationFindOneInput): Promise<Conversation>;
-  RemoveOne(request: ConversationRemoveOneInput): Promise<Conversation>;
-  FindByParticipant(request: ConversationFindByParticipantInput): Promise<ConversationFindByParticipantResult>;
+export interface UserServiceClient<CallOptionsExt = {}> {
+  createOne(request: DeepPartial<UserCreateOneInput>, options?: CallOptions & CallOptionsExt): Promise<User>;
+  updateOne(request: DeepPartial<UserUpdateOneInput>, options?: CallOptions & CallOptionsExt): Promise<User>;
+  findOne(request: DeepPartial<UserFindOneInput>, options?: CallOptions & CallOptionsExt): Promise<User>;
+  findMe(request: DeepPartial<Empty>, options?: CallOptions & CallOptionsExt): Promise<User>;
+  removeOne(request: DeepPartial<UserRemoveOneInput>, options?: CallOptions & CallOptionsExt): Promise<Empty>;
+  search(request: DeepPartial<UserSearchInput>, options?: CallOptions & CallOptionsExt): Promise<UserSearchResult>;
 }
 
-export interface ConversationParticipantService {
-  CreateOne(request: ConversationParticipantCreateOneInput): Promise<ConversationParticipant>;
-  FindOne(request: ConversationParticipantFindOneInput): Promise<ConversationParticipant>;
-  RemoveOne(request: ConversationParticipantRemoveOneInput): Promise<ConversationParticipant>;
-  FindByConversation(
+export interface PermissionServiceImplementation<CallContextExt = {}> {
+  createOne(request: PermissionCreateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Permission>>;
+  createMany(
+    request: PermissionCreateManyInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<Permissions>>;
+  findOne(request: PermissionFindOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Permission>>;
+  findWhere(request: PermissionFindWhereInput, context: CallContext & CallContextExt): Promise<DeepPartial<Permission>>;
+  findWhereMany(
+    request: PermissionFindWhereManyInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<Permissions>>;
+  findWhereOrStar(
+    request: PermissionFindWhereOrStarInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<Permission>>;
+  findByPermitted(
+    request: PermissionFindByPermittedInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<PermissionFindByPermittedResult>>;
+  findByEntity(
+    request: PermissionFindByEntityInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<PermissionFindByEntityResult>>;
+  findAllActions(
+    request: PermissionFindAllActionsInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<PermissionFindAllActionsResult>>;
+  validateOne(
+    request: PermissionValidateOneInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<PermissionValidateOneResult>>;
+  removeOne(request: PermissionRemoveOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Empty>>;
+  removeWhere(request: PermissionRemoveWhereInput, context: CallContext & CallContextExt): Promise<DeepPartial<Empty>>;
+  removeWhereMany(
+    request: PermissionRemoveWhereManyInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<Empty>>;
+  removeAllActions(
+    request: PermissionRemoveAllActionsInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<Empty>>;
+}
+
+export interface PermissionServiceClient<CallOptionsExt = {}> {
+  createOne(
+    request: DeepPartial<PermissionCreateOneInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Permission>;
+  createMany(
+    request: DeepPartial<PermissionCreateManyInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Permissions>;
+  findOne(request: DeepPartial<PermissionFindOneInput>, options?: CallOptions & CallOptionsExt): Promise<Permission>;
+  findWhere(
+    request: DeepPartial<PermissionFindWhereInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Permission>;
+  findWhereMany(
+    request: DeepPartial<PermissionFindWhereManyInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Permissions>;
+  findWhereOrStar(
+    request: DeepPartial<PermissionFindWhereOrStarInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Permission>;
+  findByPermitted(
+    request: DeepPartial<PermissionFindByPermittedInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<PermissionFindByPermittedResult>;
+  findByEntity(
+    request: DeepPartial<PermissionFindByEntityInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<PermissionFindByEntityResult>;
+  findAllActions(
+    request: DeepPartial<PermissionFindAllActionsInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<PermissionFindAllActionsResult>;
+  validateOne(
+    request: DeepPartial<PermissionValidateOneInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<PermissionValidateOneResult>;
+  removeOne(request: DeepPartial<PermissionRemoveOneInput>, options?: CallOptions & CallOptionsExt): Promise<Empty>;
+  removeWhere(request: DeepPartial<PermissionRemoveWhereInput>, options?: CallOptions & CallOptionsExt): Promise<Empty>;
+  removeWhereMany(
+    request: DeepPartial<PermissionRemoveWhereManyInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Empty>;
+  removeAllActions(
+    request: DeepPartial<PermissionRemoveAllActionsInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Empty>;
+}
+
+export interface UserFollowServiceImplementation<CallContextExt = {}> {
+  createOne(request: UserFollowCreateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Follower>>;
+  removeOne(request: UserFollowRemoveOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Follower>>;
+  findFollowers(
+    request: UserFindFollowersInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<UserFindFollowersResult>>;
+  findFollowees(
+    request: UserFindFolloweesInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<UserFindFolloweesResult>>;
+}
+
+export interface UserFollowServiceClient<CallOptionsExt = {}> {
+  createOne(request: DeepPartial<UserFollowCreateOneInput>, options?: CallOptions & CallOptionsExt): Promise<Follower>;
+  removeOne(request: DeepPartial<UserFollowRemoveOneInput>, options?: CallOptions & CallOptionsExt): Promise<Follower>;
+  findFollowers(
+    request: DeepPartial<UserFindFollowersInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<UserFindFollowersResult>;
+  findFollowees(
+    request: DeepPartial<UserFindFolloweesInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<UserFindFolloweesResult>;
+}
+
+export interface ConversationServiceImplementation<CallContextExt = {}> {
+  createOne(
+    request: ConversationCreateOneInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<Conversation>>;
+  updateOne(
+    request: ConversationUpdateOneInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<Conversation>>;
+  findOne(request: ConversationFindOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Conversation>>;
+  removeOne(
+    request: ConversationRemoveOneInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<Conversation>>;
+  findByParticipant(
+    request: ConversationFindByParticipantInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<ConversationFindByParticipantResult>>;
+}
+
+export interface ConversationServiceClient<CallOptionsExt = {}> {
+  createOne(
+    request: DeepPartial<ConversationCreateOneInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Conversation>;
+  updateOne(
+    request: DeepPartial<ConversationUpdateOneInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Conversation>;
+  findOne(
+    request: DeepPartial<ConversationFindOneInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Conversation>;
+  removeOne(
+    request: DeepPartial<ConversationRemoveOneInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<Conversation>;
+  findByParticipant(
+    request: DeepPartial<ConversationFindByParticipantInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<ConversationFindByParticipantResult>;
+}
+
+export interface ConversationParticipantServiceImplementation<CallContextExt = {}> {
+  createOne(
+    request: ConversationParticipantCreateOneInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<ConversationParticipant>>;
+  findOne(
+    request: ConversationParticipantFindOneInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<ConversationParticipant>>;
+  removeOne(
+    request: ConversationParticipantRemoveOneInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<ConversationParticipant>>;
+  findByConversation(
     request: ConversationParticipantFindByConversationInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<ConversationParticipantFindByConversationResult>>;
+}
+
+export interface ConversationParticipantServiceClient<CallOptionsExt = {}> {
+  createOne(
+    request: DeepPartial<ConversationParticipantCreateOneInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<ConversationParticipant>;
+  findOne(
+    request: DeepPartial<ConversationParticipantFindOneInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<ConversationParticipant>;
+  removeOne(
+    request: DeepPartial<ConversationParticipantRemoveOneInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<ConversationParticipant>;
+  findByConversation(
+    request: DeepPartial<ConversationParticipantFindByConversationInput>,
+    options?: CallOptions & CallOptionsExt,
   ): Promise<ConversationParticipantFindByConversationResult>;
 }
 
-export interface MessageService {
-  CreateOne(request: MessageCreateOneInput): Promise<Message>;
-  UpdateOne(request: MessageUpdateOneInput): Promise<Message>;
-  FindOne(request: MessageFindOneInput): Promise<Message>;
-  FindUnique(request: MessageFindUniqueInput): Promise<Message>;
-  RemoveOne(request: MessageRemoveOneInput): Promise<Message>;
-  FindByConversation(request: MessageFindByConversationInput): Promise<MessageFindByConversationResult>;
+export interface MessageServiceImplementation<CallContextExt = {}> {
+  createOne(request: MessageCreateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Message>>;
+  updateOne(request: MessageUpdateOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Message>>;
+  findOne(request: MessageFindOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Message>>;
+  findUnique(request: MessageFindUniqueInput, context: CallContext & CallContextExt): Promise<DeepPartial<Message>>;
+  removeOne(request: MessageRemoveOneInput, context: CallContext & CallContextExt): Promise<DeepPartial<Message>>;
+  findByConversation(
+    request: MessageFindByConversationInput,
+    context: CallContext & CallContextExt,
+  ): Promise<DeepPartial<MessageFindByConversationResult>>;
 }
 
-export interface WorkersService {
-  PublishJob(request: PublishJobInput): Promise<PublishJobResult>;
-  HealthCheck(request: Empty): Promise<WorkersHealthCheckResult>;
+export interface MessageServiceClient<CallOptionsExt = {}> {
+  createOne(request: DeepPartial<MessageCreateOneInput>, options?: CallOptions & CallOptionsExt): Promise<Message>;
+  updateOne(request: DeepPartial<MessageUpdateOneInput>, options?: CallOptions & CallOptionsExt): Promise<Message>;
+  findOne(request: DeepPartial<MessageFindOneInput>, options?: CallOptions & CallOptionsExt): Promise<Message>;
+  findUnique(request: DeepPartial<MessageFindUniqueInput>, options?: CallOptions & CallOptionsExt): Promise<Message>;
+  removeOne(request: DeepPartial<MessageRemoveOneInput>, options?: CallOptions & CallOptionsExt): Promise<Message>;
+  findByConversation(
+    request: DeepPartial<MessageFindByConversationInput>,
+    options?: CallOptions & CallOptionsExt,
+  ): Promise<MessageFindByConversationResult>;
+}
+
+export interface WorkersServiceImplementation<CallContextExt = {}> {
+  publishJob(request: PublishJobInput, context: CallContext & CallContextExt): Promise<DeepPartial<PublishJobResult>>;
+  healthCheck(request: Empty, context: CallContext & CallContextExt): Promise<DeepPartial<WorkersHealthCheckResult>>;
+}
+
+export interface WorkersServiceClient<CallOptionsExt = {}> {
+  publishJob(request: DeepPartial<PublishJobInput>, options?: CallOptions & CallOptionsExt): Promise<PublishJobResult>;
+  healthCheck(request: DeepPartial<Empty>, options?: CallOptions & CallOptionsExt): Promise<WorkersHealthCheckResult>;
 }

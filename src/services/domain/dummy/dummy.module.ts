@@ -2,11 +2,11 @@ import { Module } from '@nestjs/common';
 import { DummyController } from './dummy.controller';
 import { DummyService } from './dummy.service';
 import { DummyLogic } from './dummy.logic';
-import { ClientModule } from '@appstack-io/client';
 import { LimitsModule } from '@appstack-io/limits';
+import { PermissionModule } from '@appstack-io/permissions';
 
 @Module({
-  imports: [ClientModule, LimitsModule],
+  imports: [LimitsModule, PermissionModule],
   controllers: [DummyController],
   providers: [DummyService, DummyLogic],
   exports: [],

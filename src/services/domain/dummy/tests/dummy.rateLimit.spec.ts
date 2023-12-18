@@ -1,4 +1,3 @@
-import { createChannel, createClient, Metadata } from 'nice-grpc';
 import { shutdownComponents } from '@appstack-io/main';
 import { v4 as uuid } from 'uuid';
 import {
@@ -11,10 +10,7 @@ import {
   useHost,
   usePorts,
 } from '@appstack-io/tests';
-import {
-  DummyServiceClient,
-  DummyServiceDefinition,
-} from '@appstack-io/client';
+import { DummyService, Metadata } from '../../../../client';
 import * as process from 'process';
 import { MainMicroservicesPublicModule } from '../../../../main/components/main.microservices.public.module';
 import { MainMicroservicesPrivateModule } from '../../../../main/components/main.microservices.private.module';
@@ -25,7 +21,7 @@ import { MainWorkersModule } from '../../../../main/components/main.workers.modu
 jest.setTimeout(10000);
 
 describe('Dummy: Rate limits', () => {
-  let client: DummyServiceClient;
+  let client: DummyService;
   const metadata = new Metadata();
   let ports: {
     protoInternal: number;
@@ -42,8 +38,7 @@ describe('Dummy: Rate limits', () => {
     process.env.READ_RPM_LIMIT = '1';
     ports = await usePorts();
     const host = useHost();
-    const channel = createChannel(`${host}:${ports.proto}`);
-    client = createClient(DummyServiceDefinition, channel);
+    client = new DummyService({ host, port: String(ports.proto) });
     if (!isE2E())
       await runMain({
         publicMicroservicesModule: MainMicroservicesPublicModule,
@@ -70,15 +65,13 @@ describe('Dummy: Rate limits', () => {
       text: uuid(),
     };
     const metadata1 = await getMetadata(ports);
-    const created = await client.createOne(input, { metadata: metadata1 });
+    const created = await client.createOne(input, metadata1);
 
     // Act
     const bombard = async () => {
       const requests = [];
       for (let i = 0; i < Number(process.env.WRITE_RPM_LIMIT) * 5; i++) {
-        requests.push(
-          client.findOne({ id: created.id }, { metadata: metadata1 }),
-        );
+        requests.push(client.findOne({ id: created.id }, metadata1));
       }
       return await Promise.all(requests);
     };
@@ -101,9 +94,7 @@ describe('Dummy: Rate limits', () => {
     const bombard = async () => {
       const requests = [];
       for (let i = 0; i < Number(process.env.WRITE_RPM_LIMIT) * 5; i++) {
-        requests.push(
-          client.search({ filter: input }, { metadata: metadata1 }),
-        );
+        requests.push(client.search({ filter: input }, metadata1));
       }
       return await Promise.all(requests);
     };
@@ -126,7 +117,7 @@ describe('Dummy: Rate limits', () => {
     const bombard = async () => {
       const requests = [];
       for (let i = 0; i < Number(process.env.WRITE_RPM_LIMIT) * 5; i++) {
-        requests.push(client.createOne(input, { metadata: metadata1 }));
+        requests.push(client.createOne(input, metadata1));
       }
       return await Promise.all(requests);
     };
@@ -144,17 +135,14 @@ describe('Dummy: Rate limits', () => {
       text: uuid(),
     };
     const metadata1 = await getMetadata(ports);
-    const created = await client.createOne(input, { metadata: metadata1 });
+    const created = await client.createOne(input, metadata1);
 
     // Act
     const bombard = async () => {
       const requests = [];
       for (let i = 0; i < Number(process.env.WRITE_RPM_LIMIT) * 5; i++) {
         requests.push(
-          client.updateOne(
-            { id: created.id, ...input },
-            { metadata: metadata1 },
-          ),
+          client.updateOne({ id: created.id, ...input }, metadata1),
         );
       }
       return await Promise.all(requests);
@@ -177,10 +165,7 @@ describe('Dummy: Rate limits', () => {
       process.env.WRITE_RPM_LIMIT = '99999';
       const many = [];
       for (let i = 0; i < 5; i++) {
-        const created = await client.createOne(
-          { ...input },
-          { metadata: metadata1 },
-        );
+        const created = await client.createOne({ ...input }, metadata1);
         await sleep(10);
         many.push(created);
       }
@@ -192,10 +177,7 @@ describe('Dummy: Rate limits', () => {
       const requests = [];
       requests.push(
         ...many.map((created) =>
-          client.removeOne(
-            { id: created.id, ...input },
-            { metadata: metadata1 },
-          ),
+          client.removeOne({ id: created.id, ...input }, metadata1),
         ),
       );
       return await Promise.all(requests);

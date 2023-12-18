@@ -8,29 +8,20 @@ import {
   DummyUpdateOneInput,
 } from '../../../combined.interfaces';
 import { DummyService } from './dummy.service';
-import {
-  ClientService,
-  WorkersServiceClient,
-  WorkersServiceDefinition,
-} from '@appstack-io/client';
+import { WorkersService } from '../../../client';
 
 @Injectable()
 export class DummyLogic {
-  private workersServiceClient: WorkersServiceClient;
+  private workers: WorkersService = new WorkersService({
+    host: 'localhost',
+    port: process.env.ASIO_WORKERS_PORT,
+  });
 
-  constructor(
-    private service: DummyService,
-    private clientService: ClientService,
-  ) {
-    this.workersServiceClient =
-      this.clientService.getWorkersClient<WorkersServiceClient>(
-        WorkersServiceDefinition,
-      );
-  }
+  constructor(private service: DummyService) {}
 
   async createOne(input: DummyCreateOneInput): Promise<Dummy> {
     const result = await this.service.createOne(input);
-    await this.workersServiceClient.publishJob({
+    await this.workers.publishJob({
       dummyJobPayload: { id: result.id },
     });
     return result;

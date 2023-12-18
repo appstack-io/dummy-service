@@ -19,10 +19,6 @@ message DummyJobPayload {
   string id = 1;
 }
 
-message MessageJobPayload {
-  string id = 1;
-}
-
 service WorkersService {
   rpc PublishJob (PublishJobInput) returns (PublishJobResult) {}
   rpc HealthCheck (google.protobuf.Empty) returns (WorkersHealthCheckResult) {}

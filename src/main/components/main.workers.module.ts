@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { DummyWorkerModule } from '../../services/domain/dummy/workers/dummyWorker.module';
-import { MessageWorkerModule } from '@appstack-io/messaging';
 import { WorkersModule } from '@appstack-io/workers';
+import { MessagingWorkersModule } from '@appstack-io/messaging';
 
-const imports = [WorkersModule, DummyWorkerModule, MessageWorkerModule];
+const imports = [WorkersModule, DummyWorkerModule, MessagingWorkersModule];
 
 export { imports };
 

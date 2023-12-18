@@ -1,4 +1,3 @@
-import { createChannel, createClient, Metadata } from 'nice-grpc';
 import { shutdownComponents } from '@appstack-io/main';
 import { v4 as uuid } from 'uuid';
 import {
@@ -8,18 +7,15 @@ import {
   useHost,
   usePorts,
 } from '@appstack-io/tests';
-import {
-  DummyServiceClient,
-  DummyServiceDefinition,
-} from '@appstack-io/client';
 import { MainMicroservicesPublicModule } from '../../../../main/components/main.microservices.public.module';
 import { MainMicroservicesPrivateModule } from '../../../../main/components/main.microservices.private.module';
 import { MainHttpModule } from '../../../../main/components/main.http.module';
 import { PubsubServerModule } from '@appstack-io/pubsub';
 import { MainWorkersModule } from '../../../../main/components/main.workers.module';
+import { DummyService, Metadata } from '../../../../client';
 
 describe('Dummy: Hack Attempts', () => {
-  let client: DummyServiceClient;
+  let client: DummyService;
   const metadata = new Metadata();
   metadata.set('external', 'false');
   const invalidJwt =
@@ -41,8 +37,7 @@ describe('Dummy: Hack Attempts', () => {
     await setupArangoDb();
     const ports = await usePorts();
     const host = useHost();
-    const channel = createChannel(`${host}:${ports.proto}`);
-    client = createClient(DummyServiceDefinition, channel);
+    client = new DummyService({ host, port: String(ports.protoInternal) });
     if (!isE2E())
       await runMain({
         publicMicroservicesModule: MainMicroservicesPublicModule,
@@ -65,7 +60,7 @@ describe('Dummy: Hack Attempts', () => {
     };
 
     // Act
-    const p = client.createOne(input, { metadata });
+    const p = client.createOne(input, metadata);
 
     // Assert
     await expect(p).rejects.toThrow('permission denied');
@@ -78,7 +73,7 @@ describe('Dummy: Hack Attempts', () => {
     };
 
     // Act
-    const p = client.findOne(input, { metadata });
+    const p = client.findOne(input, metadata);
 
     // Assert
     await expect(p).rejects.toThrow('permission denied');
@@ -91,7 +86,7 @@ describe('Dummy: Hack Attempts', () => {
     };
 
     // Act
-    const p = client.removeOne(input, { metadata });
+    const p = client.removeOne(input, metadata);
 
     // Assert
     await expect(p).rejects.toThrow('permission denied');
@@ -106,9 +101,9 @@ describe('Dummy: Hack Attempts', () => {
     const p = client.search(
       {
         filter: { text: token },
-        opts: { limit: 10, waitForSync: true },
+        opts: { limit: 10, offset: 0, waitForSync: true },
       },
-      { metadata },
+      metadata,
     );
 
     // Assert

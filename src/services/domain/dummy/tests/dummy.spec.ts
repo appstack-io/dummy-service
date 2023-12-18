@@ -1,4 +1,3 @@
-import { createChannel, createClient, Metadata } from 'nice-grpc';
 import { shutdownComponents } from '@appstack-io/main';
 import { v4 as uuid } from 'uuid';
 import {
@@ -9,10 +8,7 @@ import {
   useHost,
   usePorts,
 } from '@appstack-io/tests';
-import {
-  DummyServiceClient,
-  DummyServiceDefinition,
-} from '@appstack-io/client';
+import { DummyService, Metadata } from '../../../../client';
 import { MainMicroservicesPublicModule } from '../../../../main/components/main.microservices.public.module';
 import { MainMicroservicesPrivateModule } from '../../../../main/components/main.microservices.private.module';
 import { MainHttpModule } from '../../../../main/components/main.http.module';
@@ -22,7 +18,7 @@ import { MainWorkersModule } from '../../../../main/components/main.workers.modu
 jest.setTimeout(10000);
 
 describe('Dummy', () => {
-  let client: DummyServiceClient;
+  let client: DummyService;
   const metadata = new Metadata();
   let ports: {
     protoInternal: number;
@@ -37,8 +33,7 @@ describe('Dummy', () => {
     await setupArangoDb();
     ports = await usePorts();
     const host = useHost();
-    const channel = createChannel(`${host}:${ports.proto}`);
-    client = createClient(DummyServiceDefinition, channel);
+    client = new DummyService({ host, port: String(ports.proto) });
     if (!isE2E())
       await runMain({
         publicMicroservicesModule: MainMicroservicesPublicModule,
@@ -63,8 +58,8 @@ describe('Dummy', () => {
     };
 
     // Act
-    const created = await client.createOne(input, { metadata });
-    const found = await client.findOne({ id: created.id }, { metadata });
+    const created = await client.createOne(input, metadata);
+    const found = await client.findOne({ id: created.id }, metadata);
 
     // Assert
     expect(found).toEqual(created);
@@ -80,8 +75,8 @@ describe('Dummy', () => {
     otherMetadata.set('jwt', accessToken);
 
     // Act
-    const created = await client.createOne(input, { metadata });
-    const p = client.findOne({ id: created.id }, { metadata: otherMetadata });
+    const created = await client.createOne(input, metadata);
+    const p = client.findOne({ id: created.id }, otherMetadata);
 
     // Assert
     await expect(p).rejects.toThrow('permission denied');
@@ -98,11 +93,8 @@ describe('Dummy', () => {
     otherMetadata.set('jwt', accessToken);
 
     // Act
-    const created = await client.createOne(input, { metadata });
-    const found = await client.findOne(
-      { id: created.id },
-      { metadata: otherMetadata },
-    );
+    const created = await client.createOne(input, metadata);
+    const found = await client.findOne({ id: created.id }, otherMetadata);
 
     // Assert
     expect(found).toEqual(created);
@@ -112,12 +104,12 @@ describe('Dummy', () => {
     // Arrange
     const input = { text: uuid() };
     const update = { text: uuid() };
-    const created = await client.createOne(input, { metadata });
+    const created = await client.createOne(input, metadata);
 
     // Act
     const updated = await client.updateOne(
       { id: created.id, ...update },
-      { metadata },
+      metadata,
     );
 
     // Assert
@@ -129,15 +121,15 @@ describe('Dummy', () => {
     const input = {
       text: uuid(),
     };
-    const created = await client.createOne(input, { metadata });
+    const created = await client.createOne(input, metadata);
 
     // Act
-    await client.removeOne({ id: created.id }, { metadata });
+    await client.removeOne({ id: created.id }, metadata);
 
     // Assert
-    await expect(
-      client.findOne({ id: created.id }, { metadata }),
-    ).rejects.toThrow('not found');
+    await expect(client.findOne({ id: created.id }, metadata)).rejects.toThrow(
+      'not found',
+    );
   });
 
   test('Search', async () => {
@@ -147,7 +139,7 @@ describe('Dummy', () => {
     for (let i = 0; i < 4; i++) {
       await client.createOne(
         { ...input, text: `${input.text} ${i}` },
-        { metadata },
+        metadata,
       );
     }
 
@@ -155,16 +147,16 @@ describe('Dummy', () => {
     const all = await client.search(
       {
         filter: { text: token },
-        opts: { limit: 10, waitForSync: true },
+        opts: { limit: 10, offset: 0, waitForSync: true },
       },
-      { metadata },
+      metadata,
     );
     const page1 = await client.search(
       {
         filter: { text: token },
-        opts: { limit: 3, waitForSync: true },
+        opts: { limit: 3, offset: 0, waitForSync: true },
       },
-      { metadata },
+      metadata,
     );
     const lastOffset = page1.meta.offset;
     const page2 = await client.search(
@@ -172,7 +164,7 @@ describe('Dummy', () => {
         filter: { text: token },
         opts: { limit: 3, offset: lastOffset, waitForSync: true },
       },
-      { metadata },
+      metadata,
     );
 
     // Assert
